@@ -1,0 +1,16 @@
+# AWS Deadline Cloud Qt Application Dependencies
+
+# GUI Framework
+PyQt6>=6.6.0
+PyQt6-Qt6>=6.6.0
+
+# AWS Deadline Cloud Python API
+deadline>=0.48.0
+boto3>=1.28.0
+
+# Data processing
+pandas>=2.0.0
+PyYAML>=6.0.0
+
+# For styling
+PyQt6-WebEngine>=6.6.0
