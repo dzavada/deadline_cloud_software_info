@@ -1,0 +1,38 @@
+specificationVersion: 'jobtemplate-2023-09'
+name: List All Software Available on AWS
+parameterDefinitions:
+- name: CondaChannel
+  type: STRING
+  default: deadline-cloud
+  description: Conda channel to query for software packages
+steps:
+- name: Print Software Information on AWS
+  script:
+    actions:
+      onRun:
+        command: '{{Task.File.runScript}}'
+    embeddedFiles:
+    - name: runScript
+      type: TEXT
+      runnable: true
+      data: |
+        #!/usr/bin/env bash
+        set -ex
+       
+        echo "System Information:"
+        echo "==================" 
+        id 
+        echo "" 
+        echo "PATH: $PATH" 
+        echo ""
+        
+        echo "Conda Version:" 
+        conda --version
+        echo "" 
+        
+        echo "Querying conda channel: {{Param.CondaChannel}}"
+        echo ""
+        
+        echo "Available Software Packages:" 
+        echo "============================" 
+        conda search --override-channels -c {{Param.CondaChannel}}
