@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# @Author: Derek Zavada
+# @Date:   2025-12-10 10:35:29
+# @Last Modified by:   Derek Zavada
+# @Last Modified time: 2025-12-10 10:41:23
 #!/usr/bin/env python3
 """
 AWS Deadline Cloud Software Viewer
@@ -225,11 +230,15 @@ class SoftwareParser:
         # Look for lines matching conda package format with various timestamp formats
         # Examples:
         # [2025-12-03T21:49:43.773000+00:00] blender 3.6.23 481731fa3deb7292fd3d0f1fbec830787d44c023_0 deadline-cloud
-        # 2025/12/06 11:27:34-08:00 blender 4.5.0 hb0f4dca_0 Conda/Default
-        # Pattern matches optional timestamp, then package name, version, build, and channel
+        # 2025/12/10 11:04:25-05:00 blender                        4.5.4      hb0f4dca_0  Conda/Default
+        # Pattern matches timestamp, then package name, version, build, and channel (with flexible spacing)
         
-        # Pattern that matches both timestamp formats and any channel name
-        pattern = r'(?:(?:\[[\d\-T:+\.]+\]|\d{4}/\d{2}/\d{2}\s+[\d:\-]+)\s+)?(\S+)\s+([\d\.]+)\s+(\S+)\s+(\S+)'
+        # Pattern that matches both timestamp formats with multiple spaces between columns
+        # Format 1: [2025-12-03T21:49:43.773000+00:00] package version build channel
+        # Format 2: 2025/12/10 11:04:25-05:00 package    version    build    channel (columnar with multiple spaces)
+        pattern1 = r'^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+[+-]\d{2}:\d{2}\]\s+([a-zA-Z0-9_\-]+)\s+([a-zA-Z0-9\._]+)\s+([a-zA-Z0-9_\-]+)\s+([a-zA-Z0-9_\-/]+)\s*$'
+        pattern2 = r'^\d{4}/\d{2}/\d{2}\s+\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}\s+([a-zA-Z0-9_\-]+)\s+([a-zA-Z0-9\._]+)\s+([a-zA-Z0-9_\-]+)\s+([a-zA-Z0-9_\-/]+)\s*$'
+
         
         for line in output.split('\n'):
             # Skip header lines, empty lines, and system messages
@@ -253,7 +262,8 @@ class SoftwareParser:
             if line.strip().startswith('---') or line.strip() == '':
                 continue
                 
-            match = re.search(pattern, line)
+            # Try both patterns
+            match = re.search(pattern1, line) or re.search(pattern2, line)
             if match:
                 name = match.group(1)
                 version = match.group(2)
